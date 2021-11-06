@@ -27,7 +27,9 @@ def html_to_list(path_to_html):
                     if item not in regex_finds_list:
                         regex_finds_list.append(item)
         else:
-            if item not in regex_finds_list:
+            mapid_check = re.findall("^\d*", item)
+            for item in mapid_check:
+                if item not in regex_finds_list:
                         regex_finds_list.append(item)
 
     with open (filepath, "w") as id_dump:
