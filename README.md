@@ -2,6 +2,8 @@
 
 **You will need Python 3 installed to run this**
 
+**Note: Some collection names or HTML/HTM names may cause issues. If you get errors try using a basic name such as `collection.db` or `collection.html` instead.**
+
 ## How to use for osu!Collector collections:
 1. Run "launcher.py", enter "y" to the osu!Collector prompt, enter the osu!Collector collectionID or URL, your API key and the output path for the collection DB. 
 
