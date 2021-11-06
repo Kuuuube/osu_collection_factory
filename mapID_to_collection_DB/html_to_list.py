@@ -20,7 +20,7 @@ def html_to_list(path_to_html):
             for item in regex_filter_2:
                 if item not in regex_finds_list:
                         regex_finds_list.append(item)
-            regex_filter_3 = re.findall("(?<=https://osu\.ppy\.sh/beatmapsets/)\d{1,7}#\w{1,6}/\d{1,8}", item)
+            regex_filter_3 = re.findall("(?<=https://osu\.ppy\.sh/beatmapsets/)\d{1,7}(#|%23)\w{1,6}/\d{1,8}", item)
             for item in regex_filter_3:
                 regex_filter_3 = re.findall("\d*$", item)
                 for item in regex_filter_3:
