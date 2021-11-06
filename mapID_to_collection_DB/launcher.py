@@ -4,6 +4,7 @@ import re
 import osu_collector_dumper
 import list_mapid_info_puller
 import html_to_list
+import setID_to_mapIDs
 
 html_check = "0"
 osu_collector_check = "0"
@@ -27,11 +28,16 @@ if re.search("(y|Y)", osu_collector_check) != None:
 
 if re.search("(y|Y)", html_check) != None:
     html_to_list.html_to_list(html_path)
+    setID_to_mapIDs.setID_to_list(html_path)
+    setID_to_mapIDs.setID_list_to_mapID_list(api_key)
 
 if re.search("(.(d|D)(b|B))", collection_path) == None:
     collection_path = re.sub("$", ".db", collection_path)
 
 if re.search("(y|Y)", html_check) == None and re.search("(y|Y)", osu_collector_check) == None:
+    setID_to_mapIDs.setID_to_list("list.txt")
     html_to_list.html_to_list("list.txt")
-    
+    setID_to_mapIDs.setID_list_to_mapID_list(api_key)
+
 list_mapid_info_puller.id_to_db(api_key, collection_path)
+
