@@ -10,7 +10,10 @@
 
 ## How to use a HTML/HTM file:
 1. Run "launcher.py", enter "y" to the HTML/HTM prompt, enter in the path to the HTML/HTM file, your API key and the output path for the collection DB. 
-2. You should have your collection.
+
+
+    Note: osu! api calls (for converting mapID to MD5) are done at 1 per second.
+3. You should have your collection.
 
 ## How to use with manual mapID list:
 1. Add your list of mapIDs or map links to "list.txt".
