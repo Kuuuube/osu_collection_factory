@@ -46,17 +46,20 @@ def setID_to_list(path_to_setIDs):
     with open (path_to_setIDs, "r") as setID_file:
         setID_file_lines = setID_file.readlines()
     SetID_list = list(map(str.strip, setID_file_lines))
-    
+
     for item in SetID_list:
+        osu_strings = re.findall("https{0,1}://osu.ppy.sh/\w+/\d+.{0,3}\w{0,6}/{0,1}\d{0,8}", item)
+    
+    for item in osu_strings:
         if re.search("^\d", item) == None and re.search ("(#|%23)", item) == None:
-            regex_filter_1 = re.findall("(?<=https://osu.ppy.sh/)(beatmapsets/\d{1,7}(?<!#)|s/\d{1,7}(?<!#))", item)
-            for item in regex_filter_1:
-                regex_filter_1_step_2 = re.findall("\d*$", item)
-                for item in regex_filter_1_step_2:
-                    if item not in regex_finds_list:
-                        regex_finds_list.append(item)
+            regex_filter_1 = re.findall("https{0,1}://osu.ppy.sh/(beatmapsets/\d{1,7}(?<!#)|s/\d{1,7}(?<!#))", item)
+            for regex_item in regex_filter_1:
+                regex_filter_1_step_2 = re.findall("\d*$", regex_item)
+                for regex_item_2 in regex_filter_1_step_2:
+                    if regex_item_2 not in regex_finds_list:
+                        regex_finds_list.append(regex_item_2)
 
     with open (filepath, "w") as id_dump:
-        for item in regex_finds_list:
-            id_dump.writelines([item])
+        for dump_item in regex_finds_list:
+            id_dump.writelines([dump_item])
             id_dump.writelines(["\n"])

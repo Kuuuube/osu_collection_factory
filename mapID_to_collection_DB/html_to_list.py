@@ -12,18 +12,28 @@ def html_to_list(path_to_html):
     
     for item in html_list:
         if re.search("^\d", item) == None:
-            regex_filter_1 = re.findall("(?<=https://osu\.ppy\.sh/beatmaps/)\d{1,8}", item)
+            regex_filter_1 = re.findall("https{0,1}://osu\.ppy\.sh/beatmaps/\d{1,8}", item)
             for regex_item in regex_filter_1:
-                if regex_item not in regex_finds_list:
+                regex_filter_1_step_2 = re.findall("\d*$", regex_item)
+                for regex_item in regex_filter_1_step_2:
+                    if regex_item not in regex_finds_list:
                         regex_finds_list.append(regex_item)
-            regex_filter_2 = re.findall("(?<=https://osu\.ppy\.sh/b/)\d{1,8}", item)
+            regex_filter_2 = re.findall("https{0,1}://osu\.ppy\.sh/b/\d{1,8}", item)
             for regex_item in regex_filter_2:
-                if regex_item not in regex_finds_list:
+                regex_filter_2_step_2 = re.findall("\d*$", regex_item)
+                for regex_item in regex_filter_2_step_2:
+                    if regex_item not in regex_finds_list:
                         regex_finds_list.append(regex_item)
-            regex_filter_3 = re.findall("(?<=https://osu\.ppy\.sh/beatmapsets/)\d{1,7}(#\w{1,6}/\d{1,8}|%23\w{1,6}/\d{1,8})", item)
+            regex_filter_3 = re.findall("https{0,1}://osu\.ppy\.sh/beatmapsets/\d{1,7}(#\w{1,6}/\d{1,8}|%23\w{1,6}/\d{1,8})", item)
             for regex_item in regex_filter_3:
                 regex_filter_3_step_2 = re.findall("\d*$", regex_item)
                 for regex_item in regex_filter_3_step_2:
+                    if regex_item not in regex_finds_list:
+                        regex_finds_list.append(regex_item)
+            regex_filter_4 = re.findall("osu://b/\d{1,8}", item)
+            for regex_item in regex_filter_4:
+                regex_filter_4_step_2 = re.findall("\d*$", regex_item)
+                for regex_item in regex_filter_4_step_2:
                     if regex_item not in regex_finds_list:
                         regex_finds_list.append(regex_item)
         else:
