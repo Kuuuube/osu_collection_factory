@@ -1,6 +1,10 @@
 # osu MapID to Collection DB 
 
-**You will need Python 3 installed to run this**
+## Dependencies:
+
+- Python 3: [Download link](https://www.python.org/downloads/)
+- Python `requests` module: Enter this command in cmd or a terminal: `pip install requests`
+- .NETCore 3.1.0: [Download link](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-3.1.20-windows-x64-installer)
 
 **Note: Some collection names or HTML/HTM names may cause issues. If you get errors try using a basic name such as `collection.db` or `collection.html` instead.**
 
