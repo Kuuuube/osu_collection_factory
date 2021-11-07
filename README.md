@@ -7,7 +7,7 @@
 ## How to use for osu!Collector collections:
 1. Run "launcher.py", enter "y" to the osu!Collector prompt, enter the osu!Collector collectionID or URL, your API key and the output path for the collection DB. 
 
-    Note: osu!Collector pages (one page = 100 maps) are grabbed at 1 per 5 seconds. osu! api calls (for converting mapID to MD5 and converting setIDs to mapIDs) are done at 1 per second.
+    Note: osu!Collector pages (one page = 100 maps) are grabbed at 1 per 5 seconds.
 2. You should have your collection.
 
 ## How to use a HTML/HTM file:
