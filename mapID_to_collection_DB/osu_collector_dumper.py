@@ -5,7 +5,51 @@ import time
 import sys
 import subprocess
 
-def osu_collector_dump(collection_id, collection_path, diff_filter_min, diff_filter_max):
+def osu_collector_dump(collection_id, collection_path):
+    
+    collection_path_no_extension_1 = re.sub(".*(\\\|\\\\)", "", collection_path)
+    collection_path_no_extension_2 = re.sub("\..*", "", collection_path_no_extension_1)
+    
+    collection_id_regex = re.search("\d*$", collection_id)
+    
+    hasMore = True
+    filepath = "list.txt"
+    csv_filepath = 'CollectionCSVtoDB\\' + collection_path_no_extension_2 + '.csv'
+
+    with open(filepath, 'w') as id_dump:
+        id_dump.close()
+
+    with open(csv_filepath, 'w') as id_dump:
+        id_dump.close()
+    
+    if hasMore == True:
+
+        url = "https://osucollector.com/api/collections/" + collection_id_regex.group(0)
+
+        r = requests.get(url)
+        collection = json.loads(r.text)
+
+        print ("osu!Collectior: waiting.")
+
+        regex_filtered = re.findall('(?<="id": )\d{1,8}', json.dumps(collection))
+
+        hashes_regex_filtered = re.findall('(?<="checksum": ").{32}', json.dumps(collection))
+        
+        for item in regex_filtered:
+            with open (filepath, "a") as id_dump:
+                id_dump.writelines([item])
+                id_dump.writelines(["\n"])
+
+        for item in hashes_regex_filtered:
+            with open (csv_filepath, "a") as hash_dump:
+                    hash_dump.writelines([",,"])
+                    hash_dump.writelines([item])
+                    hash_dump.writelines(["\n"])
+        
+        time.sleep(1)
+    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath, collection_path])
+
+def osu_collector_dump_diff(collection_id, collection_path, diff_filter_min, diff_filter_max):
     
     collection_path_no_extension_1 = re.sub(".*(\\\|\\\\)", "", collection_path)
     collection_path_no_extension_2 = re.sub("\..*", "", collection_path_no_extension_1)
