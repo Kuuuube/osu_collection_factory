@@ -11,7 +11,7 @@
 ## How to use for osu!Collector collections:
 1. Run "launcher.py", enter "y" to the osu!Collector prompt, enter the osu!Collector collectionID or URL, and the output path for the collection DB. 
 
-    Note: osu!Collector pages (one page = 100 maps) are grabbed at 1 per 5 seconds.
+    Note: When downloading with a difficulty sort osu!Collector pages (one page = 100 maps) are grabbed at 1 per 5 seconds. Otherwise all maps are grabbed instantly and all at once.
 2. You should have your collection.
 
 ## How to use a HTML/HTM file:
