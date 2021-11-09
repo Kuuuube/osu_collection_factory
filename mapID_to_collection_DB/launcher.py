@@ -36,10 +36,10 @@ if re.search("(y|Y)", osu_collector_check) != None:
         if re.search("(y|Y)", diff_filter_check) == None:
             osu_collector_dumper.osu_collector_dump(collection_id, collection_path)
 if re.search("(y|Y)", html_check) != None:
+    api_key = input("Enter API key: ")
+    
     setID_to_mapIDs.setID_to_list(html_path)
     html_to_list.html_to_list(html_path)
-
-    api_key = input("Enter API key: ")
 
     setID_to_mapIDs.setID_list_to_mapID_list(api_key)
     list_mapid_info_puller.id_to_db(api_key, collection_path)
