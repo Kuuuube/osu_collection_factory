@@ -47,12 +47,13 @@ def setID_to_list(path_to_setIDs):
         setID_file_lines = setID_file.readlines()
     SetID_list = list(map(str.strip, setID_file_lines))
 
+    osu_strings = []
     for item in SetID_list:
-        osu_strings = re.findall("https{0,1}://osu.ppy.sh/\w+/\d+.{0,3}\w{0,6}/{0,1}\d{0,8}", item)
-    
-    for item in osu_strings:
-        if re.search("^\d", item) == None and re.search ("(#|%23)", item) == None:
-            regex_filter_1 = re.findall("https{0,1}://osu.ppy.sh/(beatmapsets/\d{1,7}(?<!#)|s/\d{1,7}(?<!#))", item)
+        osu_strings.extend (re.findall("osu.ppy.sh/\w+/\d+.{0,3}\w{0,6}/{0,1}\d{0,8}", item))
+        
+    for item_string in osu_strings:
+        if re.search("^\d", item_string) == None and re.search ("(#|%23)", item_string) == None:
+            regex_filter_1 = re.findall("osu.ppy.sh/(beatmapsets/\d{1,7}(?<!#)|s/\d{1,7}(?<!#))", item_string)
             for regex_item in regex_filter_1:
                 regex_filter_1_step_2 = re.findall("\d*$", regex_item)
                 for regex_item_2 in regex_filter_1_step_2:
