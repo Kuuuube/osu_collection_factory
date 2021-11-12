@@ -14,6 +14,8 @@
     Note: When downloading with a difficulty sort osu!Collector pages (one page = 100 maps) are grabbed at 1 per 5 seconds. Otherwise all maps are grabbed instantly and all at once.
 2. You should have your collection.
 
+Need hundreds of osu!Collector collections, a dump of the entire site, or archives of deleted collections? Join my [discord server](https://discord.gg/T5vEAh4ruF) for downloads.
+
 ## How to use a HTML/HTM file:
 1. Run "launcher.py", enter "y" to the HTML/HTM prompt, enter in the path to the HTML/HTM file, your API key and the output path for the collection DB. 
 
