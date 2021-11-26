@@ -3,11 +3,8 @@ import requests
 import re
 import time
 import subprocess
-import sys
-from datetime import datetime,timezone
 
 def id_to_db(api_key, collection_path):
-    utc_time = datetime.now(timezone.utc).strftime("%Y-%m-%d_%H-%M-%S")
 
     collection_path_no_extension_1 = re.sub(".*(\\\|\\\\)", "", collection_path)
     collection_path_no_extension_2 = re.sub("\..*", "", collection_path_no_extension_1)

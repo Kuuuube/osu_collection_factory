@@ -2,7 +2,6 @@ import requests
 import json
 import re
 import time
-import sys
 import subprocess
 
 def osu_collector_dump(collection_id, collection_path):
@@ -87,7 +86,6 @@ def osu_collector_dump_diff(collection_id, collection_path, diff_filter_min, dif
         cursor = collection["nextPageCursor"]
         hasMore = collection["hasMore"]
 
-        beatmap_list = (collection["beatmaps"])
         regex_filtered = re.findall('(?<="https://osu.ppy.sh/beatmaps/).*?(?=")', json.dumps(collection))
 
         hashes_regex_filtered = re.findall('(?<="checksum": ").{32}', json.dumps(collection))

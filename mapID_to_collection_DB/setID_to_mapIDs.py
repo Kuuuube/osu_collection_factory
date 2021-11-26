@@ -40,7 +40,6 @@ def setID_list_to_mapID_list(api_key):
 def setID_to_list(path_to_setIDs):
 
     filepath = "setID_list.txt"
-    duplicates_removed = []
     regex_finds_list = []
     
     with open (path_to_setIDs, "r") as setID_file:

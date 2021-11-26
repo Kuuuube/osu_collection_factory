@@ -1,5 +1,3 @@
-import subprocess
-import os
 import re
 import osu_collector_dumper
 import list_mapid_info_puller

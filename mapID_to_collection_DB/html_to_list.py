@@ -3,7 +3,6 @@ import re
 def html_to_list(path_to_html):
 
     filepath = "list.txt"
-    duplicates_removed = []
     regex_finds_list = []
     
     with open (path_to_html, "r") as html_file:
