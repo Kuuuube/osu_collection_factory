@@ -1,107 +1,66 @@
 import requests
-import json
 import re
 import time
 import subprocess
 
-def osu_collector_dump(collection_id, collection_path):
-    
-    collection_path_no_extension_1 = re.sub(".*(\\\|\\\\)", "", collection_path)
-    collection_path_no_extension_2 = re.sub("\..*", "", collection_path_no_extension_1)
-    
-    collection_id_regex = re.search("\d*$", collection_id)
-    
-    hasMore = True
-    filepath = "list.txt"
-    csv_filepath = 'CollectionCSVtoDB\\' + collection_path_no_extension_2 + '.csv'
 
-    with open(filepath, 'w') as id_dump:
-        id_dump.close()
-
-    with open(csv_filepath, 'w') as id_dump:
-        id_dump.close()
-    
-    if hasMore == True:
-
-        url = "https://osucollector.com/api/collections/" + collection_id_regex.group(0)
-
-        r = requests.get(url)
-        collection = json.loads(r.text)
-
-        print ("osu!Collectior: waiting.")
-
-        regex_filtered = re.findall('(?<="id": )\d{1,8}', json.dumps(collection))
-
-        hashes_regex_filtered = re.findall('(?<="checksum": ").{32}', json.dumps(collection))
-        
-        for item in regex_filtered:
-            with open (filepath, "a") as id_dump:
-                id_dump.writelines([item])
-                id_dump.writelines(["\n"])
-
-        for item in hashes_regex_filtered:
-            with open (csv_filepath, "a") as hash_dump:
-                    hash_dump.writelines([",,"])
-                    hash_dump.writelines([item])
-                    hash_dump.writelines(["\n"])
-        
-        time.sleep(1)
-    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath, collection_path])
-
-def osu_collector_dump_diff(collection_id, collection_path, diff_filter_min, diff_filter_max):
-    
-    collection_path_no_extension_1 = re.sub(".*(\\\|\\\\)", "", collection_path)
-    collection_path_no_extension_2 = re.sub("\..*", "", collection_path_no_extension_1)
-    
-    collection_id_regex = re.search("\d*$", collection_id)
-    
-    hasMore = True
+def osu_collector_dump_diff(collection_id: int | str, collection_name: str,
+                            diff_filter_min: int | None = None, diff_filter_max: int | None = None):
+    has_more = True
     cursor = "0"
     filepath = "list.txt"
-    csv_filepath = 'CollectionCSVtoDB\\' + collection_path_no_extension_2 + '.csv'
 
-    with open(filepath, 'w') as id_dump:
-        id_dump.close()
+    # Remove extension and parse id from url if necessary
+    collection_name_no_extension = re.sub(r"\..*", "", collection_name)
 
-    with open(csv_filepath, 'w') as id_dump:
-        id_dump.close()
-    
-    while hasMore == True:
+    if isinstance(collection_id, str):
+        collection_id = collection_id.split("/")[-1]
 
-        url = "https://osucollector.com/api/collections/" + collection_id_regex.group(0) + "/beatmapsv2?"
+    csv_filepath = f"{collection_name_no_extension}.csv"
+
+    while has_more:
+        # Default url and payload
+        url = f"https://osucollector.com/api/collections/{collection_id}/beatmapsv2?"
         payload = {
             "cursor": cursor,
             "perPage": "100",
-            "sortBy": "difficulty_rating",
-            "filterMin": diff_filter_min,
-            "filterMax": diff_filter_max
+            "sortBy": "difficulty_rating"
         }
 
+        # Filter logic
+        # TODO implement bpm min/max (can only sort by one)
+        if diff_filter_min is not None or diff_filter_max is not None:
+            payload["filterMin"] = diff_filter_min if diff_filter_min is not None else 0
+            payload["filterMax"] = diff_filter_max if diff_filter_max is not None else 0
+
+        # Make request for json
+        # TODO error handle this
         r = requests.get(url, payload)
-        collection = json.loads(r.text)
-        
-        print ("osu!Collectior: waiting 5 seconds.")
-        print (cursor)
-        
-        cursor = collection["nextPageCursor"]
-        hasMore = collection["hasMore"]
+        collection = r.json()
 
-        regex_filtered = re.findall('(?<="https://osu.ppy.sh/beatmaps/).*?(?=")', json.dumps(collection))
+        # Collect beatmap ids and checksums from the json
+        beatmap_ids = []
+        checksums = []
+        for beatmap in collection["beatmaps"]:
+            beatmap_ids.append(beatmap["url"].split("/")[-1])
+            checksums.append(beatmap["checksum"])
 
-        hashes_regex_filtered = re.findall('(?<="checksum": ").{32}', json.dumps(collection))
-        
-        for item in regex_filtered:
-            with open (filepath, "a") as id_dump:
-                id_dump.writelines([item])
-                id_dump.writelines(["\n"])
+        # Dump ids
+        with open(filepath, "a") as id_dump:
+            for beatmap_id in beatmap_ids:
+                id_dump.write(beatmap_id + "\n")
 
-        for item in hashes_regex_filtered:
-            with open (csv_filepath, "a") as hash_dump:
-                    hash_dump.writelines([",,"])
-                    hash_dump.writelines([item])
-                    hash_dump.writelines(["\n"])
-        
-        if hasMore == True:
+        # Dump checksums
+        with open(csv_filepath, "w") as hash_dump:
+            for checksum in checksums:
+                hash_dump.write(checksum + "\n")
+
+        # Api ratelimiting if more is available to request
+        has_more = collection["hasMore"]
+        if has_more:
+            cursor = collection["nextPageCursor"]
+            print("osu!Collector: waiting 5 seconds.")
+            print(f"next cursor={int(cursor)}")
             time.sleep(5)
-            
-    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath, collection_path])
+
+    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath, collection_name])
