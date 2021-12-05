@@ -14,9 +14,14 @@ def osu_collector_dump(out_collection_path: PathLike | str):
 
     collection_id = input("Enter collection ID or URL: ")  # TODO is there a way to validate this
 
-    # this checks if the input is valid, if it isn't, print it and loop back
+    # Collection ID sanity checks
+    # If the collection_id is an url, parse out collection ID
+    if isinstance(collection_id, str):
+        collection_id = collection_id.split("/")[-1]
+
+    # this checks if the input is valid, if it isn't, report it and loop back
     diff_filter = None
-    while (diff_filter := input("Filter by star rating? [y/n]: ").strip().lower()) not in {'y', 'n'}:
+    while (diff_filter := input("Filter by star rating? [y/n]: ").strip().lower()) not in ('y', 'n'):
         print(f"Not a valid input: {diff_filter}")
 
     if diff_filter == 'y':
@@ -53,21 +58,20 @@ def html_dump(out_collection_path: PathLike | str):
     html_path = input("Enter path to HTML/HTM file: ")  # TODO is there a way to validate this
     api_key = input("Enter API key: ")
 
-    
-    setID_to_mapIDs.setID_to_list(html_path)
+    setID_to_mapIDs.set_id_to_list(html_path)
     html_to_list.html_to_list(html_path)
 
-    setID_to_mapIDs.setID_list_to_mapID_list(api_key)
+    setID_to_mapIDs.set_id_list_to_map_id_list(api_key)
     list_mapid_info_puller.id_to_db(api_key, out_collection_path)
 
 
 def list_txt_dump(out_collection_path: PathLike | str):
     api_key = input("Enter API key: ")
 
-    setID_to_mapIDs.setID_to_list("list.txt")
+    setID_to_mapIDs.set_id_to_list("list.txt")
     html_to_list.html_to_list("list.txt")
 
-    setID_to_mapIDs.setID_list_to_mapID_list(api_key)
+    setID_to_mapIDs.set_id_list_to_map_id_list(api_key)
     list_mapid_info_puller.id_to_db(api_key, out_collection_path)
 
 
@@ -76,11 +80,11 @@ if __name__ == "__main__":
     if re.search(r"(\.db)", collection_path, flags=re.IGNORECASE) is None:  # had to use a raw string to avoid esc char
         collection_path = re.sub("$", ".db", collection_path)
 
-    oc_dump = None
-    while (oc_dump := input("Dump osu!Collector collection? [y/n]: ").strip().lower()) not in {'y', 'n', ''}:
-        print(f"Not a valid input: {oc_dump}")
+    do_oc_dump = None
+    while (do_oc_dump := input("Dump from osu!Collector collection? [y/n]: ").strip().lower()) not in {'y', 'n', ''}:
+        print(f"Not a valid input: {do_oc_dump}")
 
-    if oc_dump == 'y':
+    if do_oc_dump == 'y':
         osu_collector_dump(collection_path)
 
     else:
