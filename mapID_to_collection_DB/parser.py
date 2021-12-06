@@ -2,8 +2,21 @@ import re
 
 from os import PathLike
 
+from list_mapid_info_puller import id_to_db
+from set_id_to_map_ids import set_id_list_to_map_id_list
 
-def parse_ids(path_to_file: PathLike | str) -> dict[str, set]:
+
+def parse_file(collection_path: PathLike | str):
+    path_to_file = input("Enter path of file to parse (Default - list.txt): ")  # TODO is there a way to validate this
+    api_key = input("Enter osu! API key: ")  # TODO is there a way to validate this
+    # TODO pull api key from file [optionally]
+
+    id_dict = _parse_ids(path_to_file)
+    set_id_list_to_map_id_list(set_ids=id_dict["set_ids"], api_key=api_key)
+    id_to_db(api_key, collection_path)
+
+
+def _parse_ids(path_to_file: PathLike | str) -> dict[str, set]:
     map_ids = set()
     set_ids = set()
 
