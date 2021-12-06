@@ -1,6 +1,5 @@
 import json
 
-from os import PathLike
 from string import Template
 
 import util
@@ -38,8 +37,10 @@ def main():
     match user_choice:
         case '1':
             osu_collector_dumper.osu_collector_dump()
+            main()
         case '2':
             parser.parse_file()
+            main()
         case '3':
             settings()
         case '4':
@@ -65,8 +66,10 @@ def settings():
     match user_choice:
         case '1':
             util.change_default_collection_output_name()
+            settings()
         case '2':
             util.change_default_collection_output_path()
+            settings()
         case '3':
             main()
         case _:
@@ -74,4 +77,5 @@ def settings():
 
 
 if __name__ == "__main__":
+
     main()
