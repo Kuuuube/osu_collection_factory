@@ -1,4 +1,6 @@
 import json
+import os
+from pathlib import Path
 
 from string import Template
 
@@ -77,5 +79,17 @@ def settings():
 
 
 if __name__ == "__main__":
+    # Writes default settings if 'settings.json' doesn't exist
+    try:
+        Path(os.path.join(os.path.abspath(os.path.dirname(__file__))), "settings.json").resolve()
+
+    except (OSError, RuntimeError):
+        default_settings = {
+            "output_collection_name": "Collection",
+            "output_collection_path": "."
+        }
+
+        with open("settings.json", "w") as f:
+            json.dump(default_settings, f, indent=4)
 
     main()
