@@ -93,7 +93,7 @@ def _collector_dump(collection_id: int | str,
     filepath = "list.txt"  # TODO send to log
 
     # Get user settings
-    with open("settings.json", 'r') as f:
+    with open("../settings.json", 'r') as f:
         data = json.load(f)
 
     # Filter booleans

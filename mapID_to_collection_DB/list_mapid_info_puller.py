@@ -9,7 +9,7 @@ from util import get_json_response
 # TODO cache the id - hash pairs locally
 
 def id_to_db(map_ids: set, api_key: str):
-    with open("settings.json", "r") as f:
+    with open("../settings.json", "r") as f:
         data = json.load(f)
 
     filepath = Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + '.csv')

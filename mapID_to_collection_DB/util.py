@@ -53,7 +53,7 @@ def get_json_response(url: str, payload: dict[str, Any], rate_limit: float | Non
 def change_default_collection_output_name() -> None:
     output_collection_name = input("Enter new collection name: ")
 
-    with open("settings.json", "r") as f:
+    with open("../settings.json", "r") as f:
         data = json.load(f)
 
     collection_path = data["output_collection_path"]
@@ -71,15 +71,16 @@ def change_default_collection_output_name() -> None:
         os.rename(Path(collection_path).joinpath(data["output_collection_name"] + ".db"),
                   Path(collection_path).joinpath(output_collection_name + ".db"))
 
-    with open("settings.json", "w") as f:
+    with open("../settings.json", "w") as f:
         data["output_collection_name"] = output_collection_name
         json.dump(data, f, indent=4)
 
 
+# TODO should ask if user wants to create new dir
 def change_default_collection_output_path() -> None:
     output_collection_path = input("Enter new collection path: ")
 
-    with open("settings.json", "r") as f:
+    with open("../settings.json", "r") as f:
         data = json.load(f)
 
     collection_name = data["output_collection_name"]
@@ -104,6 +105,6 @@ def change_default_collection_output_path() -> None:
             shutil.move(Path(data["output_collection_path"]).joinpath(collection_name + ".db"),
                         Path(output_collection_path).joinpath(collection_name + ".db"))
 
-    with open("settings.json", "w") as f:
+    with open("../settings.json", "w") as f:
         data["output_collection_path"] = output_collection_path
         json.dump(data, f, indent=4)
