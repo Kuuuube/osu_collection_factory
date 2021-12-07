@@ -14,7 +14,7 @@ try:
 except (OSError, RuntimeError):
     with open("settings.json", 'w') as f:
         data = {
-            "output_collection_name": "Collection.db",
+            "output_collection_name": "Collection",
             "output_collection_path": "."
         }
 
