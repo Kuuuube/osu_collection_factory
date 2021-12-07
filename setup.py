@@ -1,23 +1,19 @@
-from pathlib import Path
+import os
 
 from setuptools import setup
 
+here = os.path.abspath(os.path.dirname(__file__))
+
 about = {}
-with open(Path("mapID_to_collection_DB/__version__.py").resolve(), "r",  encoding="utf-8") as v:
+with open(os.path.join(here, "mapID_to_collection_DB", "__version__.py"), "r") as v:
     exec(v.read(), about)
 
 
 def get_long_description() -> str:
-    try:
-        fname = Path(__file__).resolve().joinpath("README.md")
-
-    except (OSError, RuntimeError):
-        raise NotImplementedError("README.md not found")
+    fname = os.path.join(here, "README.md")
 
     with open(fname, "r") as f:
         return f.read()
-
-
 
 
 setup(
