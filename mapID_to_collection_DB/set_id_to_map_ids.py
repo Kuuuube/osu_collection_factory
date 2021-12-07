@@ -6,9 +6,10 @@ from util import get_json_response
 
 
 # Writes all map IDs from set ID to list.txt
-def set_id_list_to_map_id_list(set_ids: set, api_key) -> set:
+def set_id_list_to_map_id_list(set_ids: set, api_key: str) -> set:
     url = "https://osu.ppy.sh/api/get_beatmaps"
     ids = set()
+
     for set_id in set_ids:
         payload = {
             'k': api_key,
