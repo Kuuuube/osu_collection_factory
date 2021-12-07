@@ -58,8 +58,9 @@ def change_default_collection_output_name() -> None:
 
     collection_path = data["output_collection_path"]
 
-    if not output_collection_name.endswith(".db"):
-        output_collection_name += ".db"
+    # Removes extension if needed
+    if output_collection_name.endswith(".db"):  # or ...
+        output_collection_name = output_collection_name.replace(".db", "")
 
     # noinspection PyUnusedLocal
     user_input = None
@@ -99,7 +100,8 @@ def change_default_collection_output_path() -> None:
             print(f"Invalid input: {user_input}")
 
         if user_input == 'y':
-            shutil.move(data["output_collection_path"] + collection_name, output_collection_path + collection_name)
+            shutil.move(Path(data["output_collection_path"]).joinpath(collection_name + ".db"),
+                        Path(output_collection_path).joinpath(collection_name + ".db"))
 
     with open("settings.json", "w") as f:
         data["output_collection_path"] = output_collection_path
