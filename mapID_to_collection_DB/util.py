@@ -64,15 +64,16 @@ def change_default_collection_output_name() -> None:
 
     # noinspection PyUnusedLocal
     user_input = None
-    while (user_input := input("Rename current collection? (y/n) :")) not in ('y', 'n'):
+    while (user_input := input("Rename current collection? (y/n): ")) not in ('y', 'n'):
         print(f"Invalid input: {user_input}")
 
     if user_input == 'y':
-        os.rename(collection_path + data["output_collection_name"], collection_path + output_collection_name)
+        os.rename(Path(collection_path).joinpath(data["output_collection_name"] + ".db"),
+                  Path(collection_path).joinpath(output_collection_name + ".db"))
 
     with open("settings.json", "w") as f:
         data["output_collection_name"] = output_collection_name
-        json.dump(f, data, indent=4)
+        json.dump(data, f, indent=4)
 
 
 def change_default_collection_output_path() -> None:
@@ -105,4 +106,4 @@ def change_default_collection_output_path() -> None:
 
     with open("settings.json", "w") as f:
         data["output_collection_path"] = output_collection_path
-        json.dump(f, data, indent=4)
+        json.dump(data, f, indent=4)
