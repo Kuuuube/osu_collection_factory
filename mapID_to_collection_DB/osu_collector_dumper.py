@@ -145,7 +145,7 @@ def _collector_dump(collection_id: int | str,
         # Dump checksums
         with open(csv_filepath, "w") as hash_dump:  # TODO is csv needed to parse?
             for checksum in checksums:
-                hash_dump.write(checksum + "\n")
+                hash_dump.write(checksum + ",," + "\n")
 
         # Api ratelimiting if more is available to request
         has_more = collection["hasMore"]
