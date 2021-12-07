@@ -19,9 +19,12 @@ def parse_file():
     id_to_db(map_ids_set, api_key)
 
 
-def _parse_ids(path_to_file: PathLike | str) -> dict[str, set]:
+def _parse_ids(path_to_file: PathLike | str | None) -> dict[str, set]:
     map_ids = set()
     set_ids = set()
+
+    if path_to_file is None:
+        path_to_file = "list.txt"
 
     with open(path_to_file, 'r') as f:
         content = f.read()
