@@ -1,5 +1,4 @@
 import json
-import re
 import subprocess
 from pathlib import Path
 
@@ -94,17 +93,14 @@ def _collector_dump(collection_id: int | str,
     filepath = "list.txt"  # TODO send to log
 
     # Get user settings
-    with open(Path("settings.json"), 'r') as f:
+    with open("settings.json", 'r') as f:
         data = json.load(f)
 
     # Filter booleans
     using_diff_filter = diff_filter_min is not None or diff_filter_max is not None or diff_filter_max == 0
     using_bpm_filter = bpm_filter_min is not None or bpm_filter_max is not None or bpm_filter_max == 0
 
-    # Remove extension and parse id from url if necessary
-    collection_name_no_extension = re.sub(r"\..*", "", data["collection_name"])
-
-    csv_filepath = f"{collection_name_no_extension}.csv"
+    csv_filepath = Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".csv")
 
     while has_more:
         if using_diff_filter:
@@ -157,4 +153,5 @@ def _collector_dump(collection_id: int | str,
             cursor = collection["nextPageCursor"]
             print(f"next cursor={int(cursor)}")  # TODO log this
 
-    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath, data["collection_name"]])
+    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath,
+                           Path(data["collection_path"]).joinpath(data["collection_name"] + ".db")])
