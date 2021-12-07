@@ -1,5 +1,3 @@
-import os
-import sys
 import json
 
 from pathlib import Path
@@ -21,4 +19,3 @@ except (OSError, RuntimeError):
         }
 
         json.dumps(data, indent=4)
-
