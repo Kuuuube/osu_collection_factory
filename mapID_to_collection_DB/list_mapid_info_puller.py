@@ -3,7 +3,7 @@ import subprocess
 
 from pathlib import Path
 
-from mapID_to_collection_DB import util
+from util import get_json_response
 
 
 # TODO cache the id - hash pairs locally
@@ -24,10 +24,10 @@ def id_to_db(map_ids: set, api_key: str):
         }
 
         if len(map_id) > 0:
-            beatmap_json = util.get_json_response(url, payload)
+            beatmap_json = get_json_response(url, payload)
 
             with open(filepath, 'a') as f:
-                f.write(beatmap_json["file_md5"] + "\n")
+                f.write(beatmap_json["file_md5"] + ",," + "\n")
 
             print(f"ID: {map_id} MD5: {beatmap_json['file_md5']}")  # TODO log this
 
