@@ -63,16 +63,20 @@ def osu_collector_dump():
                 # Get and sanity check max bpm
                 max_bpm_filter = _filter_verification(filter_name="bpm", sort="max")
 
-    _collector_dump(collection_id, min_sr_filter, max_sr_filter, min_bpm_filter, max_bpm_filter)
+        _collector_dump_with_filter(collection_id, min_sr_filter, max_sr_filter, min_bpm_filter, max_bpm_filter)
+
+    else:
+        _collector_dump(collection_id)
 
 
-def _filter_verification(filter_name: str, sort: Literal["min"] | Literal["max"]) -> float:
+def _filter_verification(filter_name: str, sort: Literal["min"] | Literal["max"]) -> float | None:
     f = None
     while f is None:
-        f = input(f"{sort} {filter_name}: ")
+        f = input(f"{sort.capitalize()} {filter_name}: ")
 
         if f.strip() == "":
-            f = None
+            f = 0
+            return f
 
         try:
             f = float(f)  # validates the filter by casting to float
@@ -84,9 +88,46 @@ def _filter_verification(filter_name: str, sort: Literal["min"] | Literal["max"]
     return f
 
 
-def _collector_dump(collection_id: int | str,
-                    diff_filter_min: float | None = None, diff_filter_max: float | None = None,
-                    bpm_filter_min: int | None = None, bpm_filter_max: int | None = None) -> NoReturn:
+def _collector_dump(collection_id) -> NoReturn:
+    # Defaults
+    filepath = "list.txt"  # TODO send to log
+
+    # Get user settings
+    with open("../settings.json", 'r') as f:
+        data = json.load(f)
+
+    csv_filepath = Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".csv")
+
+    url = f"https://osucollector.com/api/collections/{collection_id}"
+
+    # Make request for json
+    collection = get_json_response(url=url)
+
+    # Collect beatmap ids and checksums from the json
+    beatmap_ids = []
+    checksums = []
+    for beatmap_set in collection["beatmapsets"]:
+        for beatmap in beatmap_set["beatmaps"]:
+            beatmap_ids.append(str(beatmap["id"]))
+            checksums.append(beatmap["checksum"])
+
+    # Dump ids
+    with open(filepath, "a") as id_dump:  # TODO log this
+        for beatmap_id in beatmap_ids:
+            id_dump.write(beatmap_id + "\n")
+
+    # Dump checksums
+    with open(csv_filepath, "w") as hash_dump:  # TODO is csv needed to parse?
+        for checksum in checksums:
+            hash_dump.write(checksum + ",," + "\n")
+
+    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath,
+                           Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".db")])
+
+
+def _collector_dump_with_filter(collection_id: int | str,
+                                diff_filter_min: float | None = None, diff_filter_max: float | None = None,
+                                bpm_filter_min: int | None = None, bpm_filter_max: int | None = None) -> NoReturn:
     # Defaults
     has_more = True
     cursor = "0"
@@ -96,11 +137,11 @@ def _collector_dump(collection_id: int | str,
     with open("../settings.json", 'r') as f:
         data = json.load(f)
 
+    csv_filepath = Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".csv")
+
     # Filter booleans
     using_diff_filter = diff_filter_min is not None or diff_filter_max is not None or diff_filter_max == 0
     using_bpm_filter = bpm_filter_min is not None or bpm_filter_max is not None or bpm_filter_max == 0
-
-    csv_filepath = Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".csv")
 
     while has_more:
         if using_diff_filter:
@@ -124,8 +165,7 @@ def _collector_dump(collection_id: int | str,
             }
 
         else:
-            url = f"https://osucollector.com/api/collections/{collection_id}"
-            payload = None
+            raise NotImplementedError("Filter not supported")
 
         # Make request for json
         collection = get_json_response(url=url, payload=payload)
@@ -147,11 +187,11 @@ def _collector_dump(collection_id: int | str,
             for checksum in checksums:
                 hash_dump.write(checksum + ",," + "\n")
 
-        # Api ratelimiting if more is available to request
+        # If more is available to request
         has_more = collection["hasMore"]
         if has_more:
             cursor = collection["nextPageCursor"]
             print(f"next cursor={int(cursor)}")  # TODO log this
 
     subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath,
-                           Path(data["collection_path"]).joinpath(data["collection_name"] + ".db")])
+                               Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".db")])

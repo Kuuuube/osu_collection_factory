@@ -8,13 +8,20 @@ from set_id_to_map_ids import set_id_list_to_map_id_list
 
 def parse_file():
     path_to_file = input("Enter path of file to parse (Default - list.txt): ")  # TODO is there a way to validate this
+
+    if path_to_file == "":
+        path_to_file = None
+
     api_key = input("Enter osu! API key: ")  # TODO is there a way to validate this
     # TODO pull api key from file [optionally]
 
     id_dict = _parse_ids(path_to_file)
 
     map_ids_set = set_id_list_to_map_id_list(set_ids=id_dict["set_ids"], api_key=api_key)
-    map_ids_set.add(id_dict["map_ids"])
+
+    if len(id_dict["map_ids"]) != 0:
+        for m in id_dict["map_ids"]:
+            map_ids_set.add(m)
 
     id_to_db(map_ids_set, api_key)
 

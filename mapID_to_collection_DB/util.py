@@ -15,7 +15,7 @@ JSON = dict[str, Any]
 
 # TODO log errors
 # TODO should be able to detect if its an invalid beatmap id/set id
-def get_json_response(url: str, payload: dict[str, Any], rate_limit: float | None = 1) -> JSON | NoReturn:
+def get_json_response(url: str, payload: dict[str, Any] | None = None, rate_limit: float | None = 1) -> JSON | NoReturn:
     try:
         r = requests.get(url, params=payload)
 
