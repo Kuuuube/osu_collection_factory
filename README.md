@@ -29,3 +29,7 @@ Need hundreds of osu!Collector collections, a dump of the entire site, or archiv
 
     Note: osu! api calls (for converting mapID to MD5 and converting setIDs to mapIDs) are done at 1 per second.
 3. You should have your collection.
+
+</br>
+
+###### Huge thanks to [The1Divider](https://github.com/The1Divider) for his contributions to the project.
