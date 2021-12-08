@@ -29,7 +29,6 @@ def parse_file():
 def _parse_ids(path_to_file: PathLike | str | None) -> dict[str, set]:
     map_ids = set()
     set_ids = set()
-    map_ids_raw = set()
 
     with open (path_to_file, "r") as f:
         f_lines = f.readlines()
@@ -41,9 +40,9 @@ def _parse_ids(path_to_file: PathLike | str | None) -> dict[str, set]:
     # Regex pattern to pull set IDs if no map ID is specified
     set_id_pattern = re.compile(r"(?!(?<=ets/)\d{1,7}(#|%23))((?<=ets/)\d{1,7})")
     # Regex pattern to pull map IDs
-    map_id_pattern = re.compile(r"(?<!ets/)(?<!/s/)(?<=\w/)\d{1,8}")
+    map_id_pattern = re.compile(r"((?<!ets/)(?<!/s/)(?<=\w/)\d{1,8}|^\d{1,8})")
     # Regex pattern for raw map IDs
-    raw_map_id_pattern = re.compile(r"^\d{1,8}")
+    raw_map_id_pattern = re.compile(r"")
     
     for line in content:
         for link in pattern.finditer(line):
@@ -61,12 +60,6 @@ def _parse_ids(path_to_file: PathLike | str | None) -> dict[str, set]:
                     map_ids.add(*map_id)
 
                 else:
-                    map_id_raw = re.findall(raw_map_id_pattern, link.group(0))
-
-                if len(map_id_raw) == 1:
-                    map_ids_raw.add(*map_id_raw)
-
-                else:
                     print(f"invalid link? : {link.group(0)}")
                 
-    return {"set_ids": set_ids, "map_ids": map_ids, "raw_mapids": map_ids_raw}
+    return {"set_ids": set_ids, "map_ids": map_ids}
