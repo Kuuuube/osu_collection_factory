@@ -13,6 +13,8 @@ def id_to_db(map_ids: set, api_key: str):
         data = json.load(f)
 
     filepath = Path(data["output_collection_path"]).joinpath(data["output_collection_name"])
+    csv_filepath = str(filepath) + ".csv"
+    db_filepath = str(filepath) + ".db"
 
     url = "https://osu.ppy.sh/api/get_beatmaps"
     for map_id in map_ids:
@@ -25,11 +27,10 @@ def id_to_db(map_ids: set, api_key: str):
 
         if len(map_id) > 0:
             beatmap_json = get_json_response(url, payload)
+            
+            with open(csv_filepath, 'a') as f:
+                f.write(",," + beatmap_json[0]["file_md5"] + "\n")
 
-            with open(filepath, 'a') as f:
-                f.write(",," + beatmap_json["file_md5"] + "\n")
+            print(f"ID: {map_id} MD5: {beatmap_json[0]['file_md5']}")  # TODO log this
 
-            print(f"ID: {map_id} MD5: {beatmap_json['file_md5']}")  # TODO log this
-
-    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", str(filepath) + ".csv",
-                           str(filepath) + ".db"])
+    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath, db_filepath])

@@ -19,7 +19,7 @@ def set_id_list_to_map_id_list(set_ids: set, api_key: str) -> set:
 
         beatmap_json: dict[str | Any] | None = None
         try:
-            beatmap_json = get_json_response(url=url, payload=payload)
+            beatmap_json = get_json_response(url, payload)
         except Exception as e:
             print("An exception occurred in set_id_list_to_map_id_list:\n"
                   f"{e}")
@@ -47,8 +47,8 @@ def set_id_list_to_map_id_list(set_ids: set, api_key: str) -> set:
 
             else:
                 print(f"Beatmap set {set_id}: returned with an invalid id")  # TODO log this
-
-        ids.add(*beatmap_ids)
+        for item in beatmap_ids:
+            ids.add(item)
 
         print(f"SetID - {set_id}:\n - {beatmap_ids}")  # TODO log this
 
