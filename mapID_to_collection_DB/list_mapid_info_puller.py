@@ -27,7 +27,7 @@ def id_to_db(map_ids: set, api_key: str):
             beatmap_json = get_json_response(url, payload)
 
             with open(filepath, 'a') as f:
-                f.write(beatmap_json["file_md5"] + ",," + "\n")
+                f.write(",," + beatmap_json["file_md5"] + "\n")
 
             print(f"ID: {map_id} MD5: {beatmap_json['file_md5']}")  # TODO log this
 

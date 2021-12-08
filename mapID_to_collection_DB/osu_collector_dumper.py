@@ -16,7 +16,7 @@ def osu_collector_dump():
     min_sr_filter, max_sr_filter = None, None
     min_bpm_filter, max_bpm_filter = None, None
 
-    collection_id = input("Enter collection ID or URL: ")  # TODO is there a way to validate this
+    collection_id = input("Enter collection ID or URL: ").split("/")[-1]  # TODO is there a way to validate this
 
     # If user wants to sort by diff
     # noinspection PyUnusedLocal
@@ -119,7 +119,7 @@ def _collector_dump(collection_id) -> NoReturn:
     # Dump checksums
     with open(csv_filepath, "w") as hash_dump:  # TODO is csv needed to parse?
         for checksum in checksums:
-            hash_dump.write(checksum + ",," + "\n")
+            hash_dump.write(",," + checksum + "\n")
 
     subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath,
                            Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".db")])
@@ -142,6 +142,10 @@ def _collector_dump_with_filter(collection_id: int | str,
     # Filter booleans
     using_diff_filter = diff_filter_min is not None or diff_filter_max is not None or diff_filter_max == 0
     using_bpm_filter = bpm_filter_min is not None or bpm_filter_max is not None or bpm_filter_max == 0
+
+    # Wipe csv file
+    with open(csv_filepath, "w") as wipe_file:
+        pass
 
     while has_more:
         if using_diff_filter:
@@ -183,9 +187,9 @@ def _collector_dump_with_filter(collection_id: int | str,
                 id_dump.write(beatmap_id + "\n")
 
         # Dump checksums
-        with open(csv_filepath, "w") as hash_dump:  # TODO is csv needed to parse?
+        with open(csv_filepath, "a") as hash_dump:  # TODO is csv needed to parse?
             for checksum in checksums:
-                hash_dump.write(checksum + ",," + "\n")
+                hash_dump.write(",," + checksum + "\n")
 
         # If more is available to request
         has_more = collection["hasMore"]
