@@ -15,3 +15,6 @@ venv*/
 # user files
 settings.json
 list.txt
+log.txt
+
+*.db
