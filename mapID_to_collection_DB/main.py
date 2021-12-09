@@ -1,14 +1,26 @@
-import json
 import os
+import json
+import logging
 
 from pathlib import Path
 from string import Template
+from dotenv import load_dotenv
 
 import util
 import parser
 import osu_collector_dumper
 
-# TODO check version and if requests is installed
+
+# Starts logger
+logging.basicConfig(format="[%(levelname)s] - %(asctime)s - %(name)s:\n%(message)s",
+                    datefmt="%d-%b-%y %H:%M:%S",
+                    filename="../log.txt",
+                    filemode="w",
+                    level=logging.INFO)
+logging.info("Starting logging")
+
+# Loads .env file for osu!api key if stored
+load_dotenv()
 
 main_menu = """\r
 TITLE
@@ -33,7 +45,7 @@ def main():
 
     # noinspection PyUnusedLocal
     user_choice = None
-    while (user_choice := input("> ")) not in ('1', '2', '3', '4'):
+    while (user_choice := input("> ")) not in ("1", "2", "3", "4"):
         print(f"Invalid option {user_choice}")
 
     match user_choice:
@@ -62,7 +74,7 @@ def settings():
 
     # noinspection PyUnusedLocal
     user_choice = None
-    while (user_choice := input("> ")) not in ('1', '2', '3'):
+    while (user_choice := input("> ")) not in ("1", "2", "3"):
         print(f"Invalid option {user_choice}")
 
     match user_choice:
@@ -86,7 +98,7 @@ if __name__ == "__main__":
     except (OSError, RuntimeError, FileNotFoundError):
         default_settings = {
             "output_collection_name": "Collection",
-            "output_collection_path": "."
+            "output_collection_path": ".."
         }
 
         with open("../settings.json", "w") as f:
