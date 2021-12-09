@@ -7,7 +7,7 @@ from string import Template
 from dotenv import load_dotenv
 
 import util
-import parser
+import parse_ids_from_file
 import osu_collector_dumper
 
 
@@ -53,7 +53,7 @@ def main():
             osu_collector_dumper.osu_collector_dump()
             main()
         case '2':
-            parser.parse_file()
+            parse_ids_from_file.parse_file()
             main()
         case '3':
             settings()
