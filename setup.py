@@ -26,7 +26,8 @@ setup(
     url=about["__url__"],
     download_url="",
     install_requires=[
-        "requests"
+        "requests",
+        "python-dotenv"
     ],
     python_requires=">=3.10",
     project_urls={
