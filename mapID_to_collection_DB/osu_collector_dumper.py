@@ -1,10 +1,12 @@
 import json
-import subprocess
-from pathlib import Path
+import logging
 
 from typing import NoReturn, Literal
 
+from md5_conversion import convert_md5s_to_db
 from util import get_json_response
+
+logger = logging.getLogger(__name__)
 
 filter_menu = """\r
 1) By star rating
@@ -13,116 +15,100 @@ filter_menu = """\r
 
 
 def osu_collector_dump():
+    # If user wants to sort beatmaps
+    # noinspection PyUnusedLocal
+    use_filter = None
+    while (use_filter := input("Filter collection? [y/n]: ").strip().lower()) not in ("y", "n"):
+        print(f"Not a valid input: {use_filter}")
+
+    if use_filter == "y":
+        osu_collector_dump_with_filter()
+
+    else:
+        collection_id = input("Enter collection ID or URL: ").split("/")[-1]  # TODO possibly cache this?
+        _collector_dump(collection_id)
+
+
+def osu_collector_dump_with_filter():
     min_sr_filter, max_sr_filter = None, None
     min_bpm_filter, max_bpm_filter = None, None
 
-    collection_id = input("Enter collection ID or URL: ").split("/")[-1]  # TODO is there a way to validate this
+    collection_id = input("Enter collection ID or URL: ").split("/")[-1]
 
-    # If user wants to sort by diff
+    print(filter_menu)
+
     # noinspection PyUnusedLocal
-    use_filter = None
-    while (use_filter := input("Filter collection? [y/n]: ").strip().lower()) not in ('y', 'n'):
-        print(f"Not a valid input: {use_filter}")
+    user_input = None
+    while (user_input := input(">")) not in ("1", "2"):
+        print(f"Invalid input: {user_input}")
 
-    if use_filter == 'y':
-        print(filter_menu)
+    match user_input:
+        case "1":
 
-        # noinspection PyUnusedLocal
-        user_input = None
-        while (user_input := input(">")) not in ('1', '2'):
-            print(f"Invalid input: {user_input}")
+            # Get and sanity check min sr
+            min_sr_filter = _filter_verification(filter_name="star rating", sort="min")
 
-        match user_input:
-            case '1':
-                # Get and sanity check min sr
-                _min_sr_filter = None
-                while _min_sr_filter is None:
-                    _min_sr_filter = _filter_verification(filter_name="star rating", sort="min")
+            # Get and sanity check max sr
+            max_sr_filter = _filter_verification(filter_name="star rating", sort="max")
 
-                    if _min_sr_filter < 0:  # makes sure the filter is positive
-                        print(f"Invalid star rating: {_min_sr_filter} - must be greater or equal to 0")
-                        _min_sr_filter = None
+        case "2":
 
-                min_sr_filter = _min_sr_filter
+            # Get and sanity check min bpm
+            min_bpm_filter = _filter_verification(filter_name="bpm", sort="min")
 
-                # Get and sanity check max sr
-                max_sr_filter = _filter_verification(filter_name="star rating", sort="max")
+            # Get and sanity check max bpm
+            max_bpm_filter = _filter_verification(filter_name="bpm", sort="max")
 
-            case '2':
-                # Get and sanity check min bpm
-                _min_bpm_filter = None
-                while _min_bpm_filter is None:
-                    _min_bpm_filter = _filter_verification(filter_name="bpm", sort="min")
-
-                    if _min_bpm_filter < 0:  # makes sure the filter is positive
-                        print(f"Invalid bpm: {_min_bpm_filter} - must be greater or equal to 0")
-                        _min_bpm_filter = None
-
-                min_bpm_filter = _min_bpm_filter
-
-                # Get and sanity check max bpm
-                max_bpm_filter = _filter_verification(filter_name="bpm", sort="max")
-
-        _collector_dump_with_filter(collection_id, min_sr_filter, max_sr_filter, min_bpm_filter, max_bpm_filter)
-
-    else:
-        _collector_dump(collection_id)
+    _collector_dump_with_filter(collection_id, min_sr_filter, max_sr_filter, min_bpm_filter, max_bpm_filter)
 
 
 def _filter_verification(filter_name: str, sort: Literal["min"] | Literal["max"]) -> float | None:
     f = None
     while f is None:
         f = input(f"{sort.capitalize()} {filter_name}: ")
-
         if f.strip() == "":
-            f = 0
-            return f
-
+            if sort == "min":
+                return 0
+            elif sort == "max":
+                print(f"Invalid max {filter_name}: {f} - must be a number")
+                f = None
+                continue
         try:
-            f = float(f)  # validates the filter by casting to float
-
+            f = float(f)  # Validates the filter by casting to float
         except ValueError:
             print(f"Invalid {filter_name}: {f} - must be a number")
             f = None
-
+            continue
+        if f is not None and f < 0:  # Make sure filter is positive
+            print(f"Invalid {filter_name}: {f} - must be greater or equal to 0")
+            f = None
+            continue
     return f
 
 
 def _collector_dump(collection_id) -> NoReturn:
     # Defaults
-    filepath = "list.txt"  # TODO send to log
+    beatmap_ids = set()
+    md5s = set()
 
-    # Get user settings
-    with open("../settings.json", 'r') as f:
-        data = json.load(f)
-
-    csv_filepath = Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".csv")
+    logger.info(f"Collecting beatmaps from osu!Collector collection {collection_id}:")
 
     url = f"https://osucollector.com/api/collections/{collection_id}"
-
-    # Make request for json
     collection = get_json_response(url=url)
 
     # Collect beatmap ids and checksums from the json
-    beatmap_ids = []
-    checksums = []
     for beatmap_set in collection["beatmapsets"]:
         for beatmap in beatmap_set["beatmaps"]:
-            beatmap_ids.append(str(beatmap["id"]))
-            checksums.append(beatmap["checksum"])
+            beatmap_ids.add(str(beatmap["id"]))
+            md5s.add(beatmap["checksum"])
 
-    # Dump ids
-    with open(filepath, "a") as id_dump:  # TODO log this
-        for beatmap_id in beatmap_ids:
-            id_dump.write(beatmap_id + "\n")
+    # Log ids
+    for i, j in zip(beatmap_ids, md5s):
+        logger.info(f"Dumped id: {i} - md5: {j}")
+    logger.info("Collected successfully\n")
 
     # Dump checksums
-    with open(csv_filepath, "w") as hash_dump:  # TODO is csv needed to parse?
-        for checksum in checksums:
-            hash_dump.write(",," + checksum + "\n")
-
-    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath,
-                           Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".db")])
+    convert_md5s_to_db(md5s)
 
 
 def _collector_dump_with_filter(collection_id: int | str,
@@ -131,21 +117,20 @@ def _collector_dump_with_filter(collection_id: int | str,
     # Defaults
     has_more = True
     cursor = "0"
-    filepath = "list.txt"  # TODO send to log
-
-    # Get user settings
-    with open("../settings.json", 'r') as f:
-        data = json.load(f)
-
-    csv_filepath = Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".csv")
+    md5s = set()
+    beatmap_ids = set()
 
     # Filter booleans
     using_diff_filter = diff_filter_min is not None or diff_filter_max is not None or diff_filter_max == 0
     using_bpm_filter = bpm_filter_min is not None or bpm_filter_max is not None or bpm_filter_max == 0
 
-    # Wipe csv file
-    with open(csv_filepath, "w") as wipe_file:
-        pass
+    logger.info(f"Collecting beatmaps from osu!Collector collection {collection_id}:")
+    if using_diff_filter:
+        logger.info(f"Using star rating filter: {diff_filter_min}->{diff_filter_max}")
+    elif using_bpm_filter:
+        logger.info(f"Using bpm filter: {bpm_filter_min}->{bpm_filter_max}")
+    else:
+        logger.warning("Using unknown filter")
 
     while has_more:
         if using_diff_filter:
@@ -169,33 +154,29 @@ def _collector_dump_with_filter(collection_id: int | str,
             }
 
         else:
+            logger.error("Unsupported filter used")
             raise NotImplementedError("Filter not supported")
 
-        # Make request for json
         collection = get_json_response(url=url, payload=payload)
 
         # Collect beatmap ids and checksums from the json
-        beatmap_ids = []
-        checksums = []
         for beatmap in collection["beatmaps"]:
-            beatmap_ids.append(beatmap["url"].split("/")[-1])
-            checksums.append(beatmap["checksum"])
+            beatmap_ids.add(beatmap["url"].split("/")[-1])
+            md5s.add(beatmap["checksum"])
 
-        # Dump ids
-        with open(filepath, "a") as id_dump:  # TODO log this
-            for beatmap_id in beatmap_ids:
-                id_dump.write(beatmap_id + "\n")
-
-        # Dump checksums
-        with open(csv_filepath, "a") as hash_dump:  # TODO is csv needed to parse?
-            for checksum in checksums:
-                hash_dump.write(",," + checksum + "\n")
+        # Log ids
+        for i, j in zip(beatmap_ids, md5s):
+            logger.info(f"Dumped id: {i} - md5: {j}")
 
         # If more is available to request
         has_more = collection["hasMore"]
         if has_more:
             cursor = collection["nextPageCursor"]
-            print(f"next cursor={int(cursor)}")  # TODO log this
 
-    subprocess.check_call([r"CollectionCSVtoDB\CollectionCSVtoDB.exe", csv_filepath,
-                               Path(data["output_collection_path"]).joinpath(data["output_collection_name"] + ".db")])
+            # Log cursor
+            logger.info(f"Next cursor: {cursor}")
+
+    logger.info("Collected successfully\n")
+
+    # Dump checksums
+    convert_md5s_to_db(md5s)
