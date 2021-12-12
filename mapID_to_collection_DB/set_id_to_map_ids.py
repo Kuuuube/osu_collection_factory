@@ -1,8 +1,11 @@
+import logging
+
 from typing import Any
 
 from util import get_json_response
 
-# TODO cache setID -> mapIDs as a local db to speed up lookups
+
+logger = logging.getLogger(__name__)
 
 
 # Writes all map IDs from set ID to list.txt
@@ -21,35 +24,38 @@ def set_id_list_to_map_id_list(set_ids: set, api_key: str) -> set:
         try:
             beatmap_json = get_json_response(url, payload)
         except Exception as e:
-            print("An exception occurred in set_id_list_to_map_id_list:\n"
-                  f"{e}")
+            logger.exception(e)
+
+            print(f"An error occurred: {e}")
+            print(f"Create db from {len(ids)} md5s? (y/n)")
 
             # noinspection PyUnusedLocal
             user_input = None
-            while (user_input := input(f"Create collection from {len(ids)} sets? (y/n)")) not in ('y', 'n'):
+            while (user_input := input()) not in ("y", "n"):
                 print(f"Invalid input: {user_input}")
 
-            if user_input == 'y':
+            if user_input == "y":
                 return ids
 
             else:
                 quit(1)
 
-        if beatmap_json is None:
-            raise Exception("JSON response was received as None")
+        if beatmap_json is None or beatmap_json == []:
+            logger.warning(f"Set ID: {set_id} is invalid")
 
         beatmap_ids = []
         for beatmap in beatmap_json:
-            beatmap_id = beatmap.get('beatmap_id')
+            beatmap_id = beatmap.get("beatmap_id")
 
             if beatmap_id is not None:
                 beatmap_ids.append(beatmap_id)
 
-            else:
-                print(f"Beatmap set {set_id}: returned with an invalid id")  # TODO log this
+            elif not beatmap_id:
+                logger.warning(f"Beatmap set {set_id}: returned with an invalid id")
+
         for item in beatmap_ids:
             ids.add(item)
 
-        print(f"SetID - {set_id}:\n - {beatmap_ids}")  # TODO log this
+        logger.info(f"Set ID - {set_id}:\n - {beatmap_ids}")
 
     return ids

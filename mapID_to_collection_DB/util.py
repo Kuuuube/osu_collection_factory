@@ -1,25 +1,29 @@
-import json
 import os
-import shutil
+import json
 import time
-from pathlib import Path
-
+import shutil
+import logging
 import requests
 
-from typing import Any, NoReturn
+from pathlib import Path
 from json import JSONDecodeError
+from typing import Any, NoReturn
 from requests.exceptions import HTTPError
 
+
+# Constants
 JSON = dict[str, Any]
+JSON_LIST = list[JSON]
+
+logger = logging.getLogger(__name__)
 
 
 # TODO log errors
 # TODO should be able to detect if its an invalid beatmap id/set id
-def get_json_response(url: str, payload: dict[str, Any] | None = None, rate_limit: float | None = 1) -> JSON | NoReturn:
+def get_json_response(url: str, payload: dict[str, Any] | None = None, rate_limit: float | None = 1)\
+        -> JSON | JSON_LIST | NoReturn:
     try:
         r = requests.get(url, params=payload)
-
-        # Raises exception if status code is not 200
         r.raise_for_status()
 
         try:
@@ -27,21 +31,26 @@ def get_json_response(url: str, payload: dict[str, Any] | None = None, rate_limi
 
         # Raised if json received is invalid
         except JSONDecodeError:
-            print("JSON decoding failed")
-            quit(1)
+            logger.error("JSON decoding failed")
+            raise Exception("JSON decoding failed")
 
         except Exception as e:
-            print(f"An unknown error occurred: {e}")
-            quit(1)
+            logger.error(f"An unknown error occurred: {e}")
+            raise Exception(f"An unknown error occurred: {e}")
 
+    # Raised if HTTP status code is not 200
     except HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")
-        quit(1)
+        # noinspection PyUnboundLocalVariable
+        if r.status_code == 401 and url.startswith("https://osu.ppy.sh"):
+            logger.error("Invalid osu!api key used")
+            raise HTTPError("Invalid osu!api key used")
 
-    # If other exception is raised
+        logger.error(f"HTTP error occurred: {http_err}")
+        raise HTTPError(f"HTTP error occurred: {http_err}")
+
     except Exception as e:
-        print(f"An unknown error occurred: {e}")
-        quit(1)
+        logger.error(f"An unknown error occurred: {e}")
+        raise Exception(f"An unknown error occurred: {e}")
 
     # Ratelimiting (~60/min)
     time.sleep(rate_limit)
@@ -74,6 +83,8 @@ def change_default_collection_output_name() -> None:
     with open("../settings.json", "w") as f:
         data["output_collection_name"] = output_collection_name
         json.dump(data, f, indent=4)
+
+    logger.info(f"output_collection_name changed to: {output_collection_name}")
 
 
 # TODO should ask if user wants to create new dir
@@ -108,3 +119,5 @@ def change_default_collection_output_path() -> None:
     with open("../settings.json", "w") as f:
         data["output_collection_path"] = output_collection_path
         json.dump(data, f, indent=4)
+
+    logger.info(f"output_collection_path changed to: {output_collection_path}")
