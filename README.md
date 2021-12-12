@@ -4,9 +4,13 @@
 
 - Python 3: [Download link](https://www.python.org/downloads/)
 - Python `requests` and `dotenv` modules: To install them enter the following commands in cmd or a terminal: 
-    ```pip install requests```
 
-    ```pip install python-dotenv```
+    ```
+    pip install requests
+    ```
+    ```
+    pip install python-dotenv
+    ```
 
 **Note: Some collection names or file names may cause issues. If you get errors try using a basic name such as `collection.db` or `collection.html` instead.**
 
