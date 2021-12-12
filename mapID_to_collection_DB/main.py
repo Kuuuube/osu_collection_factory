@@ -23,7 +23,7 @@ logging.info("Starting logging")
 load_dotenv()
 
 main_menu = """\r
-TITLE
+osu! Collection Factory
 ----------------------------------------
 1) Create collection from osu!collector
 2) Create collection from file

@@ -18,7 +18,7 @@ def osu_collector_dump():
     # If user wants to sort beatmaps
     # noinspection PyUnusedLocal
     use_filter = None
-    while (use_filter := input("Filter collection? [y/n]: ").strip().lower()) not in ("y", "n"):
+    while (use_filter := input("Filter collection? (y/n): ").strip().lower()) not in ("y", "n"):
         print(f"Not a valid input: {use_filter}")
 
     if use_filter == "y":
