@@ -53,7 +53,7 @@ def _parse_ids(path_to_file: PathLike | str) -> dict[str, set]:
     map_ids = set()
     set_ids = set()
 
-    with open(path_to_file, "r") as f:
+    with open(path_to_file, "r", encoding='utf8') as f:
         f_lines = f.readlines()
     content = list(map(str.strip, f_lines))
 
