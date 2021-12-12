@@ -5,7 +5,7 @@ from setuptools import setup
 here = os.path.abspath(os.path.dirname(__file__))
 
 about = {}
-with open(os.path.join(here, "mapID_to_collection_DB", "__version__.py"), "r") as v:
+with open(os.path.join(here, "osu_collection_factory", "__version__.py"), "r") as v:
     exec(v.read(), about)
 
 
@@ -31,8 +31,8 @@ setup(
     ],
     python_requires=">=3.10",
     project_urls={
-        "Issue Tracker": "https://github.com/Kuuuube/osu_MapID_to_Collection_DB/issues",
-        "Source": "https://github.com/Kuuuube/osu_MapID_to_Collection_DB",
+        "Issue Tracker": "https://github.com/Kuuuube/osu_collection_factory/issues",
+        "Source": "https://github.com/Kuuuube/osu_collection_factory",
     },
     version=about["__version__"],
 )
