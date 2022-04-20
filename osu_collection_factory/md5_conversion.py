@@ -14,6 +14,7 @@ def convert_md5s_to_db(md5s: set):
     path = Path(data["output_collection_path"]).joinpath(name + ".db")
 
     logger.info("Starting MD5 to DB conversion")
+    print("Starting MD5 to DB conversion")
 
     with open(path, "wb") as f:
         f.write(b"\x00\x00\x00\x00")  # arbitrary osu! version
@@ -27,3 +28,4 @@ def convert_md5s_to_db(md5s: set):
             f.write(md5.encode())  # md5
 
     logger.info("MD5 to DB conversion successful")
+    print("MD5 to DB conversion successful")

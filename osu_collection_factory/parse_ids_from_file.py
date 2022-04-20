@@ -58,12 +58,12 @@ def _parse_ids(path_to_file: PathLike | str) -> dict[str, set]:
     content = list(map(str.strip, f_lines))
 
     # Regex pattern to pull osu.ppy.sh/s/* links
-    pattern = re.compile(r'(((http.{0,4})?osu\.ppy\.sh/(?!u)\w{1,11}/((\d{1,8})?((#|%23)\w{1,5}/\d{1,8}|\w{1,7}\?b=\d{'
+    pattern = re.compile(r'(((http.{0,4})?osu\.ppy\.sh/(?!u)\w{1,11}/((\d{1,8})?((#|%23)\w{0,5}/\d{1,8}|\w{1,7}\?b=\d{'
                          r'1,8}(&m=\d)?)|\d{1,8}))|(^\d{1,8}))')
     # Regex pattern to pull set IDs if no map ID is specified
     set_id_pattern = re.compile(r"((?!(?<=ets/)\d{1,7}(#|%23))((?<=s/)\d{1,7}))")
     # Regex pattern to pull map IDs
-    map_id_pattern = re.compile(r"(((?<!ets/)(?<!/s/)(?<=\w/)\d{1,8}|^\d{1,8}))")
+    map_id_pattern = re.compile(r"(((?<!ets/)(?<!/s/)((?<=\w/)|(?<=#/))\d{1,8}|^\d{1,8}))")
     # Regex pattern for raw map IDs
     raw_map_id_pattern = re.compile(r"")
 
@@ -75,6 +75,7 @@ def _parse_ids(path_to_file: PathLike | str) -> dict[str, set]:
             if set_id is not None:
                 logger.info(f'Possible set ID found: {set_id.group(0)}')
                 set_ids.add(set_id.group(0))
+                print(set_id.group(0))
 
             else:
                 map_id = re.search(map_id_pattern, link.group(0))
@@ -83,9 +84,11 @@ def _parse_ids(path_to_file: PathLike | str) -> dict[str, set]:
                 if map_id is not None:
                     logger.info(f'Possible map ID found: {map_id.group(0)}')
                     map_ids.add(map_id.group(0))
+                    print(map_id.group(0))
 
                 else:
                     logger.warning(f"Invalid link? : {link.group(0)}")
+                    print(f"Invalid link? : {link.group(0)}")
 
     return {"set_ids": set_ids, "map_ids": map_ids}
 
@@ -109,6 +112,7 @@ def id_to_md5(map_ids: set, api_key: str):
                 md5s.add(beatmap_json[0]["file_md5"])
 
                 logger.info(f"ID: {map_id} MD5: {beatmap_json[0]['file_md5']}")
+                print(f"ID: {map_id} MD5: {beatmap_json[0]['file_md5']}")
 
             except IndexError:
                 # Real funky workaround if map ID received is actually a set ID
